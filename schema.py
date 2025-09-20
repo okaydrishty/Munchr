@@ -1,4 +1,4 @@
-from database import Base, engine, Sessionlocal
+from database import Base, engine, SessionLocal
 from models import User, Post, Recipe
 from sqlalchemy import Column, Integer,String, Boolean, TIMESTAMP,text
 from sqlalchemy.sql.expression import null
