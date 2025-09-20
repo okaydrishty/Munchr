@@ -39,3 +39,23 @@ class Post(Base):
     created_at=Column(DateTime(timezone=True),nullable=False,server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(),nullable=True)
     author = relationship("User", back_populates="posts")
+
+class Recilike(Base):
+    __tablename__ = "recilikes" 
+    userid=Column(Integer,ForeignKey('user.userid'),primary_key=True)
+    reci_id=Column(Integer,ForeignKey('recipes.reci_id'),primary_key=True)
+
+class Postlike(Base):
+    __tablename__ = "postlikes" 
+    userid = Column(Integer, ForeignKey("user.userid"), primary_key=True)
+    post_id = Column(Integer, ForeignKey("posts.post_id"), primary_key=True)
+
+class Postdislikes(Base):
+    __tablename__ = "postdislikes"
+
+    userid = Column(Integer,
+                    ForeignKey("user.userid"),
+                    primary_key=True)
+    post_id = Column(Integer,
+                     ForeignKey("posts.post_id"),
+                     primary_key=True)

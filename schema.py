@@ -12,12 +12,12 @@ class UserLogin(BaseModel):
     password:str
 
 class UserCreate(BaseModel):
-    email:str
+    email:EmailStr
     password:str
     name:str
 
 class UserOut(BaseModel):
-    email:str
+    email:EmailStr
     class config:
         orm_mode=True
 
