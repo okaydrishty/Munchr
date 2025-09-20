@@ -3,3 +3,4 @@ sqlalchemy
 postgres
 git
 passlib
+python-jose[cryptography]

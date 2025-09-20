@@ -2,6 +2,7 @@ from fastapi import FastAPI, Response, status , HTTPException, Depends, APIRoute
 import models,utils,database,schema
 from sqlalchemy.orm import Session
 from database import get_db
+from routers import oauth2
 
 
 router=APIRouter(
@@ -9,7 +10,7 @@ router=APIRouter(
     tags=['users']
 )
 
-#oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = oauth2.OAuth2PasswordBearer(tokenUrl="token")
 
 
 @router.post("/createaccount",status_code=status.HTTP_201_CREATED, response_model=schema.UserOut )
