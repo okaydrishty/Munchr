@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Response, status , HTTPException, Depends, APIRouter
-import models,utils,database,schema,email
+import models,utils,database,schema,sendmail
 from sqlalchemy.orm import Session
 from database import get_db
 from routers import oauth2
@@ -24,58 +24,59 @@ router=APIRouter(
 oauth2_scheme = oauth2.OAuth2PasswordBearer(tokenUrl="token")
 
 
-@router.post("/createaccount",status_code=status.HTTP_201_CREATED, response_model=schema.UserOut )
+@router.post("/createaccount",status_code=status.HTTP_201_CREATED )
 def create_user(user:schema.UserCreate,db:Session=Depends(get_db)):
     
     hashed_password=utils.hash(user.password)
     user.password=hashed_password
     to_mail= user.email
 
+    otp_og = utils.otp_genrator()
+
     pending_users[user.email] = {
-        "otp": otp,
+        
         "hashed_password": hashed_password,
-        "name": user.name
+        "name": user.name,
+        "otp":otp_og
     }
 
-   
 
-    otp= utils.otp_genrator()
 
     msg=EmailMessage()
     msg['Subject']="OTP Verification"
-    msg['From']=email.sender_mail
-    msg['To']=user.email
-    msg.set_content(f"Your otp is{otp}")
+    msg['From']=sendmail.sender_mail
+    msg['To']=to_mail
+    msg.set_content(f"Your otp is{otp_og}")
     
     #email sending
     try:
-        email.send_email(msg)
+        sendmail.send_email(msg)
     except Exception as e:
         raise HTTPException(status_code=500, detail="failed to send verification email, try a valid account")
     
     return{"message":"OTP sent successfully"}
 
-@router.post("/createaccount/verify otp")
-def verifying(email:str,otp:str,db:Session=Depends(get_db)):
-    cached = pending_users.get(email)
+@router.post("/createaccount/verifyotp",status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
+def verifying(data:schema.OTPVerify,db:Session=Depends(get_db)):
+    cached=pending_users.get(data.email)
     if not cached:
         raise HTTPException(status_code=400,detail="otp expired or user not found")
     
-    if cached["otp"] != otp:
+    if cached["otp"] != data.otp:
         raise HTTPException(status_code=400, detail="Invalid OTP")
     
     new_user = models.User(
-        email=cached[email],
+        email=data.email,
         name=cached["name"],
-        hashed_password=cached["hash_password"])
+        hashed_password="hashed_password")
     
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    del pending_users[email]
-    
+    del pending_users[data.email]
+
     return new_user
 
 @router.delete("/deleteaccount")

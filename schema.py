@@ -55,3 +55,7 @@ class Token(BaseModel):
     
 class Token_Data(BaseModel):
     id:Optional[str]=None
+
+class OTPVerify(BaseModel):
+    email:str
+    otp: str
