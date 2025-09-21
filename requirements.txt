@@ -4,3 +4,5 @@ postgres
 git
 passlib
 python-jose[cryptography]
+itsdangerous
+cachetools
