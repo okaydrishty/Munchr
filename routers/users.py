@@ -56,6 +56,8 @@ def create_user(user:schema.UserCreate,db:Session=Depends(get_db)):
     
     return{"message":"OTP sent successfully"}
 
+
+
 @router.post("/createaccount/verifyotp",status_code=status.HTTP_201_CREATED, response_model=schema.UserOut)
 def verifying(data:schema.OTPVerify,db:Session=Depends(get_db)):
     cached=pending_users.get(data.email)
@@ -79,13 +81,32 @@ def verifying(data:schema.OTPVerify,db:Session=Depends(get_db)):
 
     return new_user
 
+
+
 @router.delete("/deleteaccount")
-def delete_user():
-    pass
+def delete_user(password:schema.Confirmpass,db:Session= Depends(get_db),current_user:models.User=Depends(oauth2.get_current_user)):
+    plain_password=password.password
+    if not utils.verify(plain_password, current_user.hashed_password):
+        raise HTTPException(status_code=403, detail="Incorrect password")
+
+    db.delete(current_user)
+    db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    
 
 @router.put("/changepassword")
-def changepassword():
-    pass
+def changepassword(password:schema.Changepass,db:Session= Depends(get_db),current_user:models.User=Depends(oauth2.get_current_user)):
+    old_password=password.old_password
+
+    if not utils.verify(old_password, current_user.hashed_password):
+        raise HTTPException(status_code=403, detail="Incorrect password")
+    
+    new_hashed_password=utils.hash(password.new_password)
+    current_user.hashed_password=new_hashed_password
+    db.commit()
+    return Response(status_code=status.HTTP_200_OK)
+
 
 @router.put("/changename")
 def changename():

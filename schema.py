@@ -21,6 +21,13 @@ class UserOut(BaseModel):
     class config:
         orm_mode=True
 
+class Confirmpass(BaseModel):
+    password:str
+
+class Changepass(BaseModel):
+    old_password:str
+    new_password:str
+
 class PostCreate(BaseModel):
     title: str
     content: str
