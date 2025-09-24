@@ -18,7 +18,7 @@ class UserCreate(BaseModel):
 
 class UserOut(BaseModel):
     email:EmailStr
-    class config:
+    class Config:
         orm_mode=True
 
 class Confirmpass(BaseModel):

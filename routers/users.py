@@ -70,7 +70,7 @@ def verifying(data:schema.OTPVerify,db:Session=Depends(get_db)):
     new_user = models.User(
         email=data.email,
         name=cached["name"],
-        hashed_password="hashed_password")
+        hashed_password=cached["hashed_password"])
     
 
     db.add(new_user)
@@ -107,10 +107,6 @@ def changepassword(password:schema.Changepass,db:Session= Depends(get_db),curren
     db.commit()
     return Response(status_code=status.HTTP_200_OK)
 
-
-@router.put("/changename")
-def changename():
-    pass
 
 @router.get("/{userid}", response_model=schema.UserOut)
 def get_user(userid: int, db: Session = Depends(get_db)):
